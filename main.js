@@ -20,15 +20,13 @@ const app = new Vue({
 		],
 		startCellLeft: 2,
 		startCellTop: 0,
-		block: [[]]
+		cellLeft: 2,
+		cellTop: 0,
+		block: [[]],
+		jewel: [{}],
+		board: {},
 	},
 	mounted: function() {
-		//this.app = new PIXI.Application({
-		//	antialias: true,
-		//	resolution: window.devicePixelRatio || 1,
-		//	autoDensity: true,
-		//	resizeTo: window
-		//})
 		this.app = new PIXI.Application({})
 		this.$el.appendChild(this.app.view)
 		this.interactive = true
@@ -48,7 +46,6 @@ const app = new Vue({
 			return this.jewelTypes[Math.floor(Math.random()*this.jewelTypes.length)]
 		},
 		draw(object, left, top, color, width, height) {
-			object = this.createGraphics()
 			object.beginFill(color)
 			object.drawRect(left, top, width, height)
 			object.endFill()
@@ -61,8 +58,13 @@ const app = new Vue({
 		},
 		drawBlock() {
 			for (let i = 0; i < this.jewelMax; i++) {
-				this.draw(this.jewel, this.startCellLeft*this.jewelSize + this.jewelLeft, this.startCellTop*this.jewelSize + this.jewelTop + i*this.jewelSize, this.block[0][i].color, this.jewelSize, this.jewelSize)
+				this.jewel[i] = this.createGraphics()
+				this.draw(this.jewel[i], this.startCellLeft*this.jewelSize + this.jewelLeft, this.startCellTop*this.jewelSize + this.jewelTop + i*this.jewelSize, this.block[0][i].color, this.jewelSize, this.jewelSize)
 			}
+		},
+		move(object, left, top) {
+			object.x += left*this.jewelSize
+			object.y += top*this.jewelSize
 		},
 		rotate() {
 			let j = this.block[0][this.jewelMax - 1]
@@ -71,6 +73,33 @@ const app = new Vue({
 			}
 			this.block[0][0] = j
 			this.drawBlock()
+		},
+		moveRight() {
+			if (this.cellLeft < this.boardCellWidth - 1) {
+				console.log('moveRight!!')
+				this.cellLeft++
+				for (let i = 0; i < this.jewelMax; i++) {
+					this.move(this.jewel[i], 1, 0)
+				}
+			}
+		},
+		moveLeft() {
+			if (this.cellLeft > 0) {
+				console.log('moveLeft!!')
+				this.cellLeft--
+				for (let i = 0; i < this.jewelMax; i++) {
+					this.move(this.jewel[i], -1, 0)
+				}
+			}
+		},
+		moveDown() {
+			if (this.cellTop < this.boardCellHeight - this.jewelMax) {
+				console.log(('moveDown!!'))
+				this.cellTop++
+				for (let i = 0; i < this.jewelMax; i++) {
+					this.move(this.jewel[i], 0, 1)
+				}
+			}
 		},
 		addClickEvent() {
 			document.addEventListener("keydown", event => {
@@ -81,12 +110,15 @@ const app = new Vue({
 						break
 					case 'ArrowDown':
 						console.log('↓')
+						this.moveDown()
 						break
 					case 'ArrowRight':
 						console.log('→')
+						this.moveRight()
 						break
 					case 'ArrowLeft':
 						console.log('←')
+						this.moveLeft()
 						break
 					default:
 						console.log(event.code)
@@ -97,6 +129,7 @@ const app = new Vue({
 			}, false)
 		},
 		drawBackground() {
+			this.board = this.createGraphics()
 			this.draw(this.board, this.boardLeft, this.boardTop, this.boardType, this.boardCellWidth*this.jewelSize, this.boardCellHeight*this.jewelSize)
 		}
 	},
