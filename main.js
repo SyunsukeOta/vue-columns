@@ -111,16 +111,17 @@ const app = new Vue({
 			//240=20*12=this.jewelSize*(this.boardCellHeight-1)
 			let Max = this.block[0].y
 			for (let i = this.jewelMax - 1; i > 0; i--) {
-				this.block[i].type = this.block[i - 1].type
-				Max = Math.min(Max, this.block[i].y)
+				Max = Math.max(Max, this.block[i].y)
 			}
-			if (this.block[this.jewelMax - 1].y < 240) {
+			if (Max< 240) {
 				console.log(('moveDown!!'))
 				console.log(this.block[this.jewelMax - 1].y);
 				this.cellTop++
 				for (let i = 0; i < this.jewelMax; i++) {
 					this.move(this.block[i], 0, 1)
 				}
+			} else {
+				this.remake()
 			}
 		},
 		addClickEvent() {
@@ -143,8 +144,8 @@ const app = new Vue({
 						this.moveLeft()
 						break
 					case'KeyA':
-						console.log('toTop');
-						this.toTop()
+						console.log('toTop')
+						this.showBlockXY()
 						break
 					default:
 						console.log(event.code)
@@ -158,10 +159,15 @@ const app = new Vue({
 			this.board = this.createGraphics()
 			this.draw(this.board, this.boardLeft, this.boardTop, this.boardType, this.boardCellWidth*this.jewelSize, this.boardCellHeight*this.jewelSize)
 		},
-		toTop() {
-			this.block[0].y = 0
-			this.block[1].y = 1*this.jewelSize
-			this.block[2].y = 2*this.jewelSize
+		destory() {
+			for (let i = 0; i < this.jewelMax; i++) {
+				this.app.stage.removeChild(this.block[i]);
+			}
+		},
+		remake() {
+			this.destory()
+			this.getBlockTypes()
+			this.drawBlock()
 		},
 		showBlockXY(index) {
 			console.log(this.block[index].x, this.block[index].y);
