@@ -22,7 +22,6 @@ const app = new Vue({
 		startCellTop: 0,
 		cellLeft: 2,
 		cellTop: 0,
-		block: [[]],
 		jewel: [{}],
 		board: {},
 	},
@@ -53,7 +52,8 @@ const app = new Vue({
 		},
 		getBlockTypes() {
 			for (let i = 0; i < this.jewelMax; i++) {
-				this.block[0][i] = this.getRandomJewelType()
+				this.jewel[i] = this.createGraphics()
+				this.jewel[i].type = this.getRandomJewelType()
 			}
 		},
 		move(object, left, top) {
@@ -62,20 +62,19 @@ const app = new Vue({
 		},
 		drawBlock() {
 			for (let i = 0; i < this.jewelMax; i++) {
-				this.jewel[i] = this.createGraphics()
-				this.draw(this.jewel[i], this.startCellLeft*this.jewelSize + this.jewelLeft, this.startCellTop*this.jewelSize + this.jewelTop, this.block[0][i].color, this.jewelSize, this.jewelSize)
+				this.draw(this.jewel[i], this.startCellLeft*this.jewelSize + this.jewelLeft, this.startCellTop*this.jewelSize + this.jewelTop, this.jewel[i].type.color, this.jewelSize, this.jewelSize)
 				this.move(this.jewel[i], 0, i)
 			}
 			console.log(this.jewel[0].y, this.jewel[1].y, this.jewel[2].y);
 		},
 		rotate() {
-			let j = this.block[0][this.jewelMax - 1]
+			let j = this.jewel[this.jewelMax - 1].type
 			let Min = this.jewel[0].y
 			for (let i = this.jewelMax - 1; i > 0; i--) {
-				this.block[0][i] = this.block[0][i - 1]
+				this.jewel[i].type = this.jewel[i - 1].type
 				Min = Math.min(Min, this.jewel[i].y)
 			}
-			this.block[0][0] = j
+			this.jewel[0].type = j
 			for (let i = 0; i < this.jewelMax; i++) {
 				this.move(this.jewel[i], 0, 1)
 				if ((this.jewel[i].y - Min) == this.jewelSize*this.jewelMax) {
