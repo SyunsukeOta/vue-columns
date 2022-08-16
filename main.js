@@ -23,6 +23,7 @@ const app = new Vue({
 		cellLeft: 2,
 		cellTop: 0,
 		block: [{}],
+		jewels: [[]],
 		board: {},
 	},
 	mounted: function() {
@@ -62,7 +63,9 @@ const app = new Vue({
 		},
 		drawBlock() {
 			for (let i = 0; i < this.jewelMax; i++) {
-				this.draw(this.block[i], this.startCellLeft*this.jewelSize + this.jewelLeft, this.startCellTop*this.jewelSize + this.jewelTop, this.block[i].type.color, this.jewelSize, this.jewelSize)
+				this.draw(this.block[i], this.jewelLeft, this.jewelTop, this.block[i].type.color, this.jewelSize, this.jewelSize)
+				this.block[i].x = this.startCellLeft*this.jewelSize
+				this.block[i].y = this.startCellTop*this.jewelSize
 				this.move(this.block[i], 0, i)
 			}
 			console.log(this.block[0].y, this.block[1].y, this.block[2].y);
@@ -104,8 +107,16 @@ const app = new Vue({
 			}
 		},
 		moveDown() {
-			if (this.cellTop < this.boardCellHeight - this.jewelMax) {
+			//220->ok,240->ng
+			//240=20*12=this.jewelSize*(this.boardCellHeight-1)
+			let Max = this.block[0].y
+			for (let i = this.jewelMax - 1; i > 0; i--) {
+				this.block[i].type = this.block[i - 1].type
+				Max = Math.min(Max, this.block[i].y)
+			}
+			if (this.block[this.jewelMax - 1].y < 240) {
 				console.log(('moveDown!!'))
+				console.log(this.block[this.jewelMax - 1].y);
 				this.cellTop++
 				for (let i = 0; i < this.jewelMax; i++) {
 					this.move(this.block[i], 0, 1)
@@ -131,6 +142,10 @@ const app = new Vue({
 						console.log('←')
 						this.moveLeft()
 						break
+					case'KeyA':
+						console.log('toTop');
+						this.toTop()
+						break
 					default:
 						console.log(event.code)
 						break
@@ -142,6 +157,14 @@ const app = new Vue({
 		drawBackground() {
 			this.board = this.createGraphics()
 			this.draw(this.board, this.boardLeft, this.boardTop, this.boardType, this.boardCellWidth*this.jewelSize, this.boardCellHeight*this.jewelSize)
+		},
+		toTop() {
+			this.block[0].y = 0
+			this.block[1].y = 1*this.jewelSize
+			this.block[2].y = 2*this.jewelSize
+		},
+		showBlockXY(index) {
+			console.log(this.block[index].x, this.block[index].y);
 		}
 	},
 })
