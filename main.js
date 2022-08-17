@@ -133,15 +133,15 @@ const app = new Vue({
 			for (let i = this.jewelMax - 1; i > 0; i--) {
 				Max = Math.max(Max, this.block[i].y)
 			}
-			if (Max< 240) {
+			if (Max >= 240 || this.jewels[this.cellTop + this.jewelMax][this.cellLeft] != null) {
+				this.remake()
+			} else {
 				console.log(('moveDown!!'))
 				console.log(this.block[this.jewelMax - 1].y);
 				this.cellTop++
 				for (let i = 0; i < this.jewelMax; i++) {
 					this.move(this.block[i], 0, 1)
 				}
-			} else {
-				this.remake()
 			}
 		},
 		addClickEvent() {
