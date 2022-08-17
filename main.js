@@ -108,8 +108,20 @@ const app = new Vue({
 			console.log(this.block[0].y, this.block[1].y, this.block[2].y);
 			console.log(Min);
 		},
+		searchRight() {
+			for (let i = 0; i < this.jewelMax; i++) {
+				if (this.jewels[this.cellTop + i][this.cellLeft + 1]) return false
+			}
+			return true
+		},
+		searchLeft() {
+			for (let i = 0; i < this.jewelMax; i++) {
+				if (this.jewels[this.cellTop + i][this.cellLeft - 1]) return false
+			}
+			return true
+		},
 		moveRight() {
-			if (this.cellLeft < this.boardCellWidth - 1) {
+			if (this.cellLeft < this.boardCellWidth - 1 && this.searchRight()) {
 				console.log('moveRight!!')
 				this.cellLeft++
 				for (let i = 0; i < this.jewelMax; i++) {
@@ -118,7 +130,7 @@ const app = new Vue({
 			}
 		},
 		moveLeft() {
-			if (this.cellLeft > 0) {
+			if (this.cellLeft > 0 && this.searchLeft()) {
 				console.log('moveLeft!!')
 				this.cellLeft--
 				for (let i = 0; i < this.jewelMax; i++) {
@@ -133,7 +145,7 @@ const app = new Vue({
 			for (let i = this.jewelMax - 1; i > 0; i--) {
 				Max = Math.max(Max, this.block[i].y)
 			}
-			if (Max >= 240 || this.jewels[this.cellTop + this.jewelMax][this.cellLeft] != null) {
+			if (Max >= 240 || this.jewels[this.cellTop + this.jewelMax][this.cellLeft]) {
 				this.remake()
 			} else {
 				console.log(('moveDown!!'))
