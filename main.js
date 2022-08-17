@@ -23,7 +23,7 @@ const app = new Vue({
 		cellLeft: 2,
 		cellTop: 0,
 		block: [{}],
-		jewels: [[]],
+		jewels: [],
 		board: {},
 	},
 	mounted: function() {
@@ -33,6 +33,7 @@ const app = new Vue({
 		this.drawBackground()
 		this.getBlockTypes()
 		this.drawBlock()
+		this.setJewelsZeros()
 		this.addClickEvent()
 	},
 	methods: {
@@ -61,6 +62,14 @@ const app = new Vue({
 			object.x += left*this.jewelSize
 			object.y += top*this.jewelSize
 		},
+		setJewelsZeros() {
+			for (let i = 0; i < this.boardCellHeight; i++) {
+				this.jewels[i] = []
+				for (let j = 0; j < this.boardCellWidth; j++) {
+					this.jewels[i][j] = null
+				}
+			}
+		},
 		drawBlock() {
 			for (let i = 0; i < this.jewelMax; i++) {
 				this.draw(this.block[i], this.jewelLeft, this.jewelTop, this.block[i].type.color, this.jewelSize, this.jewelSize)
@@ -69,6 +78,17 @@ const app = new Vue({
 				this.move(this.block[i], 0, i)
 			}
 			console.log(this.block[0].y, this.block[1].y, this.block[2].y);
+		},
+		drawAllJewels() {
+			for (let i = 0; i < this.boardCellHeight; i++) {
+				for (let j = 0; j < this.boardCellWidth; j++) {
+					if (this.jewels[i][j] != null) {
+						this.draw(this.jewels[i][j], this.jewelLeft, this.jewelTop, this.jewels[i][j].type.color, this.jewelSize, this.jewelSize)
+						this.jewels[i][j].y = i*this.jewelSize
+						this.jewels[i][j].x = j*this.jewelSize
+					}
+				}
+			}
 		},
 		rotate() {
 			let j = this.block[this.jewelMax - 1].type
@@ -166,11 +186,21 @@ const app = new Vue({
 		},
 		remake() {
 			this.destory()
+			for (let i = 0; i < this.jewelMax; i++) {
+				this.jewels[this.cellTop + i][this.cellLeft] = this.createGraphics()
+				this.jewels[this.cellTop + i][this.cellLeft].type = this.block[i].type
+			}
+			this.cellLeft = this.startCellLeft
+			this.cellTop = this.startCellTop
 			this.getBlockTypes()
 			this.drawBlock()
+			this.drawAllJewels()
 		},
 		showBlockXY(index) {
 			console.log(this.block[index].x, this.block[index].y);
-		}
+		},
+		showJewels() {
+			console.log(this.jewels);
+		},
 	},
 })
