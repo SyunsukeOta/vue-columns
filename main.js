@@ -214,5 +214,18 @@ const app = new Vue({
 		showJewels() {
 			console.log(this.jewels);
 		},
+		removeJewel(x, y) {
+			let i = 0
+			if (!this.jewels[y][x]) {
+				console.log('error');
+				return
+			}
+			while(this.jewels[y+i][x]) {
+				console.log(i);
+				this.jewels[y+i][x] = this.jewels[y+i-1][x]
+				i--
+			}
+			this.jewels[y+i-1][x] = null
+		}
 	},
 })
