@@ -25,6 +25,7 @@ const app = new Vue({
 		block: [{}],
 		jewels: [],
 		board: {},
+		deleteCells: []
 	},
 	mounted: function() {
 		this.app = new PIXI.Application({})
@@ -34,6 +35,7 @@ const app = new Vue({
 		this.getBlockTypes()
 		this.drawBlock()
 		this.setJewelsZeros()
+		this.setDeleteCell()
 		this.addClickEvent()
 	},
 	methods: {
@@ -70,6 +72,14 @@ const app = new Vue({
 				}
 			}
 		},
+		setDeleteCell() {
+			for (let i = 0; i < this.boardCellHeight; i++) {
+				this.deleteCells[i] = []
+				for (let j = 0; j < this.boardCellWidth; j++) {
+					this.deleteCells[i][j] = false
+				}
+			}
+		},
 		drawBlock() {
 			for (let i = 0; i < this.jewelMax; i++) {
 				this.draw(this.block[i], this.jewelLeft, this.jewelTop, this.block[i].type.color, this.jewelSize, this.jewelSize)
@@ -77,7 +87,7 @@ const app = new Vue({
 				this.block[i].y = this.startCellTop*this.jewelSize
 				this.move(this.block[i], 0, i)
 			}
-			console.log(this.block[0].y, this.block[1].y, this.block[2].y);
+			//console.log(this.block[0].y, this.block[1].y, this.block[2].y);
 		},
 		drawAllJewels() {
 			for (let i = 0; i < this.boardCellHeight; i++) {
@@ -105,8 +115,8 @@ const app = new Vue({
 				}
 			}
 			//this.block[0] = k
-			console.log(this.block[0].y, this.block[1].y, this.block[2].y);
-			console.log(Min);
+			//console.log(this.block[0].y, this.block[1].y, this.block[2].y);
+			//console.log(Min);
 		},
 		searchRight() {
 			for (let i = 0; i < this.jewelMax; i++) {
@@ -120,9 +130,22 @@ const app = new Vue({
 			}
 			return true
 		},
+		removeJewel(x, y) {
+			let i = 0
+			if (!this.jewels[y][x]) {
+				console.log('error');
+				return
+			}
+			while(this.jewels[y+i][x]) {
+				console.log(i);
+				this.jewels[y+i][x] = this.jewels[y+i-1][x]
+				i--
+			}
+			this.jewels[y+i-1][x] = null
+		},
 		moveRight() {
 			if (this.cellLeft < this.boardCellWidth - 1 && this.searchRight()) {
-				console.log('moveRight!!')
+				//console.log('moveRight!!')
 				this.cellLeft++
 				for (let i = 0; i < this.jewelMax; i++) {
 					this.move(this.block[i], 1, 0)
@@ -131,7 +154,7 @@ const app = new Vue({
 		},
 		moveLeft() {
 			if (this.cellLeft > 0 && this.searchLeft()) {
-				console.log('moveLeft!!')
+				//console.log('moveLeft!!')
 				this.cellLeft--
 				for (let i = 0; i < this.jewelMax; i++) {
 					this.move(this.block[i], -1, 0)
@@ -148,8 +171,8 @@ const app = new Vue({
 			if (Max >= 240 || this.jewels[this.cellTop + this.jewelMax][this.cellLeft]) {
 				this.remake()
 			} else {
-				console.log(('moveDown!!'))
-				console.log(this.block[this.jewelMax - 1].y);
+				//console.log(('moveDown!!'))
+				//console.log(this.block[this.jewelMax - 1].y);
 				this.cellTop++
 				for (let i = 0; i < this.jewelMax; i++) {
 					this.move(this.block[i], 0, 1)
@@ -160,23 +183,23 @@ const app = new Vue({
 			document.addEventListener("keydown", event => {
 				switch (event.code) {
 					case 'Space':
-						console.log('OK')
+						//console.log('OK')
 						this.rotate()
 						break
 					case 'ArrowDown':
-						console.log('↓')
+						//console.log('↓')
 						this.moveDown()
 						break
 					case 'ArrowRight':
-						console.log('→')
+						//console.log('→')
 						this.moveRight()
 						break
 					case 'ArrowLeft':
-						console.log('←')
+						//console.log('←')
 						this.moveLeft()
 						break
 					case'KeyA':
-						console.log('toTop')
+						//console.log('toTop')
 						this.showBlockXY()
 						break
 					default:
@@ -197,11 +220,13 @@ const app = new Vue({
 			}
 		},
 		remake() {
-			this.destory()
 			for (let i = 0; i < this.jewelMax; i++) {
 				this.jewels[this.cellTop + i][this.cellLeft] = this.createGraphics()
 				this.jewels[this.cellTop + i][this.cellLeft].type = this.block[i].type
 			}
+			this.destory()
+			//this.checkJewels()
+			console.log(this.jewels[this.cellTop][this.cellLeft].type.name);
 			this.cellLeft = this.startCellLeft
 			this.cellTop = this.startCellTop
 			this.getBlockTypes()
@@ -214,18 +239,55 @@ const app = new Vue({
 		showJewels() {
 			console.log(this.jewels);
 		},
-		removeJewel(x, y) {
-			let i = 0
-			if (!this.jewels[y][x]) {
-				console.log('error');
-				return
+		checkJewels() {
+			for (let i = 0; i < this.boardCellHeight; i++) {
+				for (let j = 0; j < this.boardCellWidth - 2; j++) {
+					this.checkThreeCells(j, i, 1)
+				}
 			}
-			while(this.jewels[y+i][x]) {
-				console.log(i);
-				this.jewels[y+i][x] = this.jewels[y+i-1][x]
-				i--
+			for (let i = 0; i < this.boardCellHeight - 2; i++) {
+				for (let j = 0; j < this.boardCellWidth; j++) {
+					this.checkThreeCells(j, i, 2)
+				}
 			}
-			this.jewels[y+i-1][x] = null
+			for (let i = 0; i < this.boardCellHeight - 2; i++) {
+				for (let j = 0; j < this.boardCellWidth - 2; j++) {
+					this.checkThreeCells(j, i, 3)
+				}
+			}
+			for (let i = 0; i < this.boardCellHeight - 2; i++) {
+				for (let j = 2; j < this.boardCellWidth; j++) {
+					this.checkThreeCells(j, i, 4)
+				}
+			}
+		},
+		checkThreeCells(x, y, direction) {
+			let i = 0, j = 0;
+			switch (direction) {
+				case 1:
+					i++;
+					break;
+				case 2:
+					j++;
+					break;
+				case 3:
+					i++;
+					j++;
+					break;
+				case 4:
+					i--;
+					j++;
+					break;
+				default:
+					break;
+			}
+			if (!this.jewels[y][x] || !this.jewels[y + j][x + i] || !this.jewels[y + 2*j][x + 2*i]) return
+			if (this.jewels[y][x].type.name == this.jewels[y + j][x + i].type.name && this.jewels[y][x].type.name == this.jewels[y + 2*j][x + 2*i].type.name) {
+				this.deleteCells[y][x] = true
+				this.deleteCells[y + j][x + i] = true
+				this.deleteCells[y + 2*j][x + 2*i] = true
+			}
+			return
 		}
 	},
 })
